@@ -1,7 +1,8 @@
 #JARVISAI
+import cmd
 import warnings
 import numpy as np
-import cv2
+import cv2 #opencv
 import pyttsx3
 import requests
 import wikipedia
@@ -9,6 +10,12 @@ import time
 import webbrowser
 import sys
 import speech_recognition as sr
+import datetime
+import subprocess
+import os
+import rotatescreen
+import vlc
+import smtplib
 from playsound import playsound
 from pyttsx3 import speak
 from ursina import *
@@ -17,11 +24,13 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui
 from PyQt5.QtWebEngineWidgets import *
+from datetime import datetime
+from pathlib import Path
 warnings.filterwarnings("ignore")
 t = time.localtime()
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
-engine.setProperty("rate", 168)
+engine.setProperty("rate", 140)
 engine.setProperty('voice', voices[0].id)
 def take_user_input():
     """Takes user input, recognizes it using Speech Recognition module and converts it into text"""
@@ -62,6 +71,10 @@ def rivaanspell():
     talk("A")
     talk("A")
     talk("N")
+def pause():
+    pass
+def exitORquit():
+    exit() or quit()
 # This is the main program
 print("Say words to talk to J.A.R.V.I.S")
 talk("Hello I'm JARVIS, How may I help you?")
@@ -82,13 +95,16 @@ while True:
         JARVIS_said()
         talk("The current time is")
         print(JARVIS_telltime())
-    if q_Jarvis == "play memes :)":
+    if q_Jarvis == "play memes":
         print("J.A.R.V.I.S playing 3 memes")
-        playsound('Coffin Dance Meme - Sound Effect.mp3')
-        time.sleep(1)
-        playsound('recording1 (3).wav')
-        time.sleep(1)
-        playsound('Rick Astley - Never Gonna Give You Up (1).wav')
+        coffinmeme = vlc.MediaPlayer("Coffin Dance Meme - Sound Effect.mp3")
+        coffinmeme.play()
+        time.sleep(13)
+        whatarethose = vlc.MediaPlayer("recording1 (3).wav")
+        whatarethose.play()
+        time.sleep(7)
+        rickroll = vlc.MediaPlayer("Rick Astley - Never Gonna Give You Up (1).wav")
+        rickroll.play()
     if q_Jarvis == "spell ryan":
         talk("R")
         talk("Y")
@@ -154,14 +170,12 @@ while True:
         webbrowser.open("https://www.netflix.com/watch/81153603?trackId=251884370&tctx=0%2C0%2C6e151a50-cebf-43b9-9f80-b1f061a887ba-610013512%2Cb985a310-fe98-412c-b3fc-63b947943de5_243682744X20XX1649179465078%2Cb985a310-fe98-412c-b3fc-63b947943de5_ROOT%2C%2C%2C")
         JARVIS_said()
         talk("Playin Creeped Out")
-
     if q_Jarvis == "Wikipedia":
         print("jarvis said > in wikipedia")
-        q_Jarvis = input("Search Your Thing")
+        q_Jarvis2 = input("Search Your Thing")
         print("Type your search")
-        q_Jarvis2wiki = input(wikipedia.search(q_Jarvis))
+        q_Jarvis2wiki = input(wikipedia.search(q_Jarvis2))
         print(q_Jarviswikisummary())
-
     def exitwiki():
         print("jarvis said > Out of wikipedia")
 
@@ -173,7 +187,6 @@ while True:
             print("Rivaan Singh")
     if q_Jarvis == "play alarm sound":
         playsound('Alarm-Fast-High-Pitch-A3-Ring-Tone-www.fesliyanstudios.com.mp3')
-
     if q_Jarvis == "do I have any messages on Gmail":
         JARVIS_said()
         webbrowser.open("gmail.google.com")
@@ -186,7 +199,7 @@ while True:
     if q_Jarvis == "turn off Jarvis":
         talk("Ok")
         talk("Turning Off")
-        exit()
+        exitORquit()
     if q_Jarvis == "good morning Jarvis":
         talk("Good Morning sir")
     if q_Jarvis == "thanks Jarvis":
@@ -306,3 +319,136 @@ while True:
     if q_Jarvis == "who is the owner of Jarvis":
         JARVIS_said()
         talk("The owner of me is Rishaan Singh")
+    #This is the weather forecast
+    if q_Jarvis == "what is the weather":
+        JARVIS_said()
+        url = 'https://api.openweathermap.org/data/2.5/weather?zip=85249,us&appid=588bfdcfa93e713cd2753c82805a3cde&units=imperial'
+        url2 = 'https://api.openweathermap.org/data/2.5/weather?zip=85249,us&appid=588bfdcfa93e713cd2753c82805a3cde&units=metric'
+        api_key = '588bfdcfa93e713cd2753c82805a3cde'
+        response = requests.request('GET', url, headers={})
+        response2 = requests.request('GET', url2, headers={})
+        data = response.json()
+        data2 = response2.json()
+        temp=int(data['main']['temp'])
+        celsius=int(data2['main']['temp'])
+        talk("The current weather is" + str(temp) + "degrees fahrenheit" + "and" + str(celsius) + "degrees celsius")
+    if q_Jarvis == "what day is it":
+        JARVIS_said()
+        now = datetime.datetime.now()
+        talk(now.strftime("%A"))
+    if q_Jarvis == "what is the feel like temperature":
+        url = 'https://api.openweathermap.org/data/2.5/weather?zip=46582,us&appid=588bfdcfa93e713cd2753c82805a3cde&units=imperial'
+        api_key = '588bfdcfa93e713cd2753c82805a3cde'
+        response = requests.request('GET', url, headers={})
+        data = response.json()
+        feelslike = int(data['main']['feels_like'])
+        JARVIS_said()
+        talk("The feel like temperature is" + str(feelslike) + "degrees fahrenheit")
+    def sleepJarVis():
+        time.sleep(1)
+    if q_Jarvis == "go to sleep Jarvis":
+        talk("Sleeping")
+        sleepJarVis()
+    elif q_Jarvis == "wake up Jarvis":
+        talk("Online and Ready")
+    if q_Jarvis == "time structure":
+        now = datetime.now()
+        talk("Time Structure")
+        talk("The Current Time Is" + str(t.tm_hour) +  str(t.tm_min))
+        talk("The Current Date Is" + str(now.strftime('%A')) + str(now.strftime('%B')) + str(now.strftime('%d')) + str(now.strftime('%Y')))
+    # dashboard
+    if q_Jarvis == "launch dashboard":
+        JARVIS_said()
+        talk("Launching Dashboard")
+        dashboardfhrn = 'https://api.openweathermap.org/data/2.5/weather?zip=85249,us&appid=588bfdcfa93e713cd2753c82805a3cde&units=imperial'
+        dashboardcls = 'https://api.openweathermap.org/data/2.5/weather?zip=85249,us&appid=588bfdcfa93e713cd2753c82805a3cde&units=metric'
+        weather = '588bfdcfa93e713cd2753c82805a3cde'
+        dashboardresponsefhrn = requests.request('GET', dashboardfhrn, headers={})
+        dashboardresponsecel = requests.request('GET', dashboardcls, headers={})
+        dashboardfahrenheit = dashboardresponsefhrn.json()
+        dashboardcelsius = dashboardresponsecel.json()
+        dashfhrn = int(dashboardfahrenheit['main']['temp'])
+        dashcel = int(dashboardcelsius['main']['temp'])
+        print(str(dashfhrn) + "degrees fahrenheit")
+        print(str(dashcel) + "degrees celsius")
+        print(",0, Rishaan Singh > Owner Of Dashboard")
+    if q_Jarvis == "launch Notepad":
+        JARVIS_said()
+        talk("Launching Notepad")
+        subprocess.call("notepad.exe")
+    if q_Jarvis == "launch command prompt":
+        JARVIS_said()
+        talk("Launching Command Prompt")
+        subprocess.call("cmd.exe")
+    if q_Jarvis == "launch CMD":
+        JARVIS_said()
+        talk("Launching Command Prompt")
+        subprocess.call("cmd.exe")
+    if q_Jarvis == "launch Microsoft Teams":
+        JARVIS_said()
+        talk("Launching Microsoft Teams")
+        subprocess.call("msteams")
+    if q_Jarvis == "launch Python":
+        JARVIS_said()
+        talk("Launching Python")
+        subprocess.call("py.exe")
+    #Computer Turn Off commands
+    if q_Jarvis == "shut down computer":
+        JARVIS_said()
+        talk("Shutting Down")
+        os.system("shutdown /s /t 0")
+    if q_Jarvis == "launch Friends YouTube channel":
+        JARVIS_said()
+        talk("Launching Harper's Youtube Channel")
+        webbrowser.open("https://www.youtube.com/channel/UCMUMA48Bu0xvj4s_7Wuh4_g")
+    if q_Jarvis == "restart computer":
+        JARVIS_said()
+        talk("Restarting")
+        os.system("shutdown /r /t 0")
+    if q_Jarvis == "sleep computer":
+        JARVIS_said()
+        talk("Sleeping")
+        os.system("sleep /s /t 0")
+    if q_Jarvis == "read my letter":
+        try:
+            f = open("C:\Rishaan\COOLESTMAN.txt", "r")
+            count = 0
+            for i in f.readlines():
+                count = count + 1
+                talk("Line : " + str(count) + " - " + i)
+        except Exception as e:
+            print("The Error is  - " + e)
+    if q_Jarvis == "rotate screen":
+        JARVIS_said()
+        talk("How Many Degrees")
+    if q_Jarvis == "0 degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(0)
+    if q_Jarvis == "0° degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(0)
+    if q_Jarvis == "90 degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(90)
+    if q_Jarvis == "90° degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(90)
+    if q_Jarvis == "180 degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(180)
+    if q_Jarvis == "180° degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(180)
+    if q_Jarvis == "270 degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(270)
+    if q_Jarvis == "270° degrees":
+        jarvisscreen = rotatescreen.get_primary_display()
+        jarvisscreen.rotate_to(270)
+    if q_Jarvis == "take a selfie":
+        cap = cv2.VideoCapture(0)
+        while True:
+            selfie, frame = cap.read()
+            cv2.imshow("Selfie", frame)
+            time.sleep(2)
+            break

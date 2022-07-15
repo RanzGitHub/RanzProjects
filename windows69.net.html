@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Windows 69</title>
+</head>
+<body style="background-color:teal">
+<div style = "position:relative; left:510px; top:140px">
+    <img src="windows69.png" width="200">
+</div>
+<button disabled id="launchSystem">Launch</button>
+<script>
+    const btnLauncher = document.getElementById("launchSystem");
+    btnLauncher.addEventListener("click", function() {
+    setTimeout(function () {
+    let replacebutton = document.querySelector("launchSystem")
+    replacebutton.remove()
+    }, 3000);
+    });
+</script>
+</body>
+</html>

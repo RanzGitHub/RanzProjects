@@ -1,0 +1,25 @@
+#for i in range(10):
+    # print(i)
+#def rivvancry():
+     #print("rivvancry")
+#rivvancry()
+#import time
+#import turtle
+#kartik = turtle.Pen()
+#kartik.pensize(10)
+#kartik.forward(50)
+#time.sleep(1)
+#kartik.left(90)
+#time.sleep(1)
+#kartik.forward(50)
+#time.sleep(1)
+#kartik.left(90)
+#time.sleep(1)
+#kartik.forward(50)
+#time.sleep(1)
+#kartik.left(90)
+#time.sleep(1)
+#kartik.forward(50)
+#time.sleep(1)
+#kartik.left(90)
+#time.sleep(1)

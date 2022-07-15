@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>colors</title>
+</head>
+<body style="background-color:darkblue">
+<img id="ghost" style="position:absolute;" src="ghost.jpg">
+</body>
+<script>
+    var timer=window.setInterval(moveGhost, 1000);
+    function moveGhost() {
+    document.getElementById("ghost").style.left=Math.random()*900+"px";
+    document.getElementById("ghost").style.top=Math.random()*600+"px";
+    }
+</script>
+</html>
