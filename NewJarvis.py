@@ -1,5 +1,4 @@
 import pyttsx3
-import pywhatkit
 import speech_recognition as sr
 import pyaudio
 import datetime
@@ -13,10 +12,12 @@ import pyautogui
 import soco
 import googletrans
 import sys, socket, select
-import cv2
+#import pywhatkit
+import azure.cognitiveservices.speech as speechsdk
 from argparse import ArgumentParser
 from tkinter import *
 from tkinter import messagebox
+from textblob import TextBlob
 translator = googletrans.Translator()
 
 engine = pyttsx3.init()
@@ -38,7 +39,7 @@ def take_user_input():
         print('Recognizing...')
         query = r.recognize_google(audio, language='en-US')
         if 'exit' in query or 'stop' in query:
-            talk("OK Sir, I will stop")
+            talk("Powering off.")
             exit()
     except Exception:
         query = 'None'
@@ -50,9 +51,23 @@ def printandtalk(Text):
     print(Text)
     talk(Text)
 
+def analyze_sentiment(text):
+    blob = TextBlob(text)
+    polarity = blob.sentiment.polarity
+    subjectivity = blob.sentiment.subjectivity
+    if polarity > 0:
+        sentiment = 'positive'
+    elif polarity < 0:
+        sentiment = 'negative'
+    else:
+        sentiment = 'neutral'
+    return sentiment, polarity, subjectivity
+
 while True:
     answer = take_user_input()
-    if answer == "hello Jarvis" or answer == "hi Jarvis":
+    sentiment, polarity, subjectivity = analyze_sentiment(answer)
+    print(sentiment, "sentence")
+    if answer == "hello Jarvis" or answer == "hi Jarvis" or answer == "hello" or answer == "hi":
         talk("Hello Sir.")
     if answer == "Jarvis" or answer == "hey Jarvis":
         talk("Yes sir?")
@@ -69,7 +84,7 @@ while True:
         talk("Restarting Computer sir.")
         os.system("shutdown /r /t 0")
     if answer == "turn off Jarvis":
-        talk("OK Sir, I will stop")
+        talk("Powering off.")
         exit()
     if answer == "search on Wikipedia":
         talk("What do you want me to search?")
@@ -79,7 +94,7 @@ while True:
         talk("What is the name of the song?")
         song = take_user_input()
         pywhatkit.playonyt(song)
-        pyautogui.click(x=100, y=100)
+        pg.click(x=100, y=100)
     elif answer == "None":
         pass
     if answer == "launch Jarvis messenger":
@@ -109,11 +124,11 @@ while True:
         talk("What do you want me to search?")
         video = take_user_input()
         webbrowser.open(f"https://www.youtube.com/results?search_query={video}")
-    if answer == "play a video on YouTube" or answer == "can I watch a video":
+    if answer == "play a video on YouTube" or answer == "can I watch a video" or answer == "play something on Youtube":
         talk("What is the name of the video?")
         video = take_user_input()
         pywhatkit.playonyt(video)
-        pyautogui.click(x=5000,y=500)
+        pyautogui.click(x=5000, y=500)
     if answer == "search something on the web":
         talk("What do you want to search?")
         web = take_user_input()
@@ -292,13 +307,38 @@ while True:
                     break
             else:
                 talk(f"{number} is a Prime Number")
+    if answer == "translate something" or answer == "translate something Jarvis":
+        talk("What language do you want me to translate to?")
+        languagetotranslate = take_user_input()
+        def recognize_from_microphone():
+            # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
+            speech_translation_config = speechsdk.translation.SpeechTranslationConfig(
+                subscription=os.environ.get('SPEECH_KEY'), region=os.environ.get('SPEECH_REGION'))
+            speech_translation_config.speech_recognition_language = "en-US"
 
-    #if answer == "tell me the currency of a country":
-        #talk("Which Country?")
-        #Country = take_user_input()
-        #print(Country)
-        #countryurl = f"https://restcountries.com/v3.1/name/{Country}/"
-        #response = requests.request('GET', countryurl, headers={})
-        #data = response.json()
-        #currencyname = int(data['name'])
-        #print(f"The currency that people use in {Country} is a {currencyname}")
+            target_language = languagetotranslate
+            speech_translation_config.add_target_language(target_language)
+
+            audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
+            translation_recognizer = speechsdk.translation.TranslationRecognizer(
+                translation_config=speech_translation_config, audio_config=audio_config)
+
+            talk("Speak into your microphone.")
+            translation_recognition_result = translation_recognizer.recognize_once_async().get()
+
+            if translation_recognition_result.reason == speechsdk.ResultReason.TranslatedSpeech:
+                printandtalk("Recognized: {}".format(translation_recognition_result.text))
+                printandtalk("""Translated into '{}': {}""".format(
+                    target_language,
+                    translation_recognition_result.translations[target_language]))
+            elif translation_recognition_result.reason == speechsdk.ResultReason.NoMatch:
+                print("No speech could be recognized: {}".format(translation_recognition_result.no_match_details))
+            elif translation_recognition_result.reason == speechsdk.ResultReason.Canceled:
+                cancellation_details = translation_recognition_result.cancellation_details
+                print("Speech Recognition canceled: {}".format(cancellation_details.reason))
+                if cancellation_details.reason == speechsdk.CancellationReason.Error:
+                    print("Error details: {}".format(cancellation_details.error_details))
+                    print("Did you set the speech resource key and region values?")
+
+
+        recognize_from_microphone()
